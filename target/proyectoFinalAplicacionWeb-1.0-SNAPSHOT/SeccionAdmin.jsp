@@ -4,10 +4,16 @@
     Author     : eduar
 --%>
 
-<%@page import="objetoNegocio.ControlUsuarios"%>
 <%@page import="java.util.List"%>
-<%@page import="objetoNegocio.Usuario"%>
+<%@page import="daos.IUsuarioDAO"%>
+<%@page import="daos.UsuarioDAO"%>
+<%@page import="colecciones.Usuario"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+
+<%
+    IUsuarioDAO usuarioDao = new UsuarioDAO();
+%>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -76,7 +82,7 @@
     <div class="row">
         <div class="col-md-4">
             <div class="user-count">
-                <h3><%= ControlUsuarios.obtenerLista().size() %></h3>
+                <h3><%= usuarioDao.obtenerTodosLosUsuario().size() %></h3>
                 <p class="mb-0">Usuarios registrados</p>
             </div>
         </div>
@@ -114,7 +120,7 @@
                 </thead>
                 <tbody>
                     <%
-                      List<Usuario> lista = ControlUsuarios.obtenerLista();
+                      List<Usuario> lista = usuarioDao.obtenerTodosLosUsuario();
                       for (Usuario usuario : lista){
                    %>
                    <tr>

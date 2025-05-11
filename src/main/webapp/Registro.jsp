@@ -4,11 +4,16 @@
     Author     : eduar
 --%>
 
-<%@page import="objetoNegocio.ControlUsuarios"%>
-<%@page import="objetoNegocio.Usuario"%>
+
+<%@page import="daos.IUsuarioDAO"%>
+<%@page import="daos.UsuarioDAO"%>
+<%@page import="colecciones.Usuario"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+
     
 <% 
+    
+    IUsuarioDAO usuarioDAO = new UsuarioDAO();
     String accion = request.getParameter("accion");
     String mensaje = "";
 
@@ -17,10 +22,9 @@
         String usuario = request.getParameter("usuario");
         String contrasena = request.getParameter("contrasena");
 
-        if (!ControlUsuarios.estaNombreUsuarioEnUso(usuario)) {
-            int nuevoId = ControlUsuarios.obtenerLista().size() + 1;
-            Usuario nuevoUsuario = new Usuario(nuevoId, nombre, usuario, contrasena);
-            ControlUsuarios.agregarUsuario(nuevoUsuario);
+        if (!usuarioDAO.existeUsuario(usuario)) {
+            Usuario nuevoUsuario = new Usuario(nombre, usuario, contrasena);
+            usuarioDAO.agregarUsuario(nuevoUsuario);
             mensaje = "Usuario registrado exitosamente!";
         } else {
             mensaje = "El nombre de usuario ya está en uso";

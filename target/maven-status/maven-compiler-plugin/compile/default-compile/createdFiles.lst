@@ -1,4 +1,8 @@
-com\mycompany\proyectofinalaplicacionweb\JakartaRestConfiguration.class
+colecciones\Usuario.class
 objetoNegocio\Usuario.class
-objetoNegocio\ControlUsuarios.class
 com\mycompany\proyectofinalaplicacionweb\resources\JakartaEE11Resource.class
+com\mycompany\proyectofinalaplicacionweb\JakartaRestConfiguration.class
+conexionBD\ConexionBD.class
+daos\UsuarioDAO.class
+objetoNegocio\ControlUsuarios.class
+daos\IUsuarioDAO.class
