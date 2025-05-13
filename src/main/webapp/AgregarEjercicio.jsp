@@ -23,21 +23,21 @@
     String mensaje = "";
 
     if ("guardar".equals(accion)) {
-        String nombreEjercicio = request.getParameter("nombreEjercicio");
+        String nombreEjercicio = request.getParameter("nombre");
         String descripcion = request.getParameter("descripcion");
         
         String[] gruposSeleccionados = request.getParameterValues("gruposMusculares");
         Set<GrupoMuscular> gruposMusculares = new HashSet<>();
         
-        for (String grupo : gruposSeleccionados) {
-                
-                    // Convertir el valor del String al valor del enum correspondiente
-                    GrupoMuscular grupoMuscular = GrupoMuscular.valueOf(grupo);
-                    gruposMusculares.add(grupoMuscular);
+        if (gruposSeleccionados != null) {
+            for (String grupo : gruposSeleccionados) {
+                GrupoMuscular grupoMuscular = GrupoMuscular.valueOf(grupo);
+                gruposMusculares.add(grupoMuscular);
+            }
         }
         
         String equipamiento = request.getParameter("equipamiento");
-        String url = request.getParameter("urlIinicial");
+        String url = request.getParameter("urlImagenIinicial");
         String series = request.getParameter("series");
         String repeticiones = request.getParameter("repeticiones");
         String tiempoDescanso = request.getParameter("tiempoDescanso");
@@ -45,7 +45,7 @@
         
         
 
-        if (!ejercicioDAO.existeEjercicio(nombreEjercicio)) {
+        if (nombreEjercicio != null && !nombreEjercicio.trim().isEmpty() && !ejercicioDAO.existeEjercicio(nombreEjercicio)) {
             Ejercicio ejercicio = new Ejercicio();
             
             ejercicio.setDescripcion(descripcion);
@@ -56,13 +56,13 @@
             ejercicio.setTiempoDescanso(Integer.valueOf(tiempoDescanso));
             ejercicio.setUrlImagenIncial(url);
         
-        
             ejercicioDAO.agregarEjercicio(ejercicio);
             
-            mensaje = "ejercicio registrado exitosamente!";
-            response.sendRedirect("SeccionAdmin.jsp");
+            // Redirección inmediata después de guardar
+            response.sendRedirect("SeccionAdmin.jsp?mensaje=Ejercicio guardado exitosamente");
+            return; // Importante para evitar continuar procesando la página
         } else {
-            mensaje = "El nombre de usuario ya está en uso";
+            mensaje = "El nombre de ejercicio ya está en uso o es inválido";
         }
     }
 %>
