@@ -25,26 +25,37 @@
     
     if ("Iniciar".equals(accion)) {
     
-        Usuario usuario = usuarioDAO.buscarUsuarioPorNombreUsuario(nombre);
         
-        if (usuario != null && usuario.getContrasena().equals(password)) {
-            request.setAttribute("usuario", usuario); // Enviar el objeto
-            RequestDispatcher dispatcher = request.getRequestDispatcher("InicioUsuario.jsp");
-            dispatcher.forward(request, response); // Redirección interna
+        if(nombre.equals("admin") && password.equals("admin")){
+            response.sendRedirect("SeccionAdmin.jsp");
         }
         
-        if (ControlUsuarios.estaNombreUsuarioEnUso(nombre)) {
-            if (nombre.equals("admin") && password.equals("admin")) {
-                response.sendRedirect("SeccionAdmin.jsp");
+        else{
+                System.out.println(usuarioDAO.existeUsuario(nombre));
+            if(usuarioDAO.existeUsuario(nombre)){
+            
+                Usuario usuario = usuarioDAO.buscarUsuarioPorNombreUsuario(nombre);
+            
+                if (usuario != null && usuario.getContrasena().equals(password)) {
+                    request.setAttribute("usuario", usuario); // Enviar el objeto
+                    RequestDispatcher dispatcher = request.getRequestDispatcher("InicioUsuario.jsp");
+                    dispatcher.forward(request, response); // Redirección interna
+                }
+                
+                else{
+                    mensaje = "Credenciales incorrectas";
+                }
+    
             }
             
-            else {
-                mensaje = "Credenciales incorrectas";
+            else{
+                mensaje = "El usuario no existe";
             }
-        } else {
-            mensaje = "El usuario no existe";
-        }
+        
+            
     }
+    }
+          
 %>
 
 <!DOCTYPE html>

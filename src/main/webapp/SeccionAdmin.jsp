@@ -91,6 +91,11 @@
     <!-- Tabla (se mantiene igual, solo cambia el estilo) -->
     
     <div class="mt-4 text-center">
+        
+        <a href="AgregarEjercicio.jsp" class="btn btn-success">
+            <i class="fas fa-plus"></i> Agregar ejercicio
+        </a>
+        
         <a href="#" class="btn btn-primary">
             <i class="fas fa-plus"></i> Crear nueva rutina
         </a>

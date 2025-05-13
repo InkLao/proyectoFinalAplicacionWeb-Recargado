@@ -104,7 +104,7 @@ public class UsuarioDAO implements IUsuarioDAO{
      */
     @Override
     public boolean existeUsuario(String nombreUsaurio) {
-        long count = collectionUsuario.countDocuments(Filters.eq("correo", nombreUsaurio));
+        long count = collectionUsuario.countDocuments(Filters.eq("usuario", nombreUsaurio));
         return count > 0;
     }
     

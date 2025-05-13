@@ -62,7 +62,7 @@
                                 <div class="fitness-icon">
                                     <i class="fas fa-user-plus"></i>
                                 </div>
-                                <h3>Crear Cuenta</h3>
+                                <h3>Crear Cuenta</h3bu
                             </div>
                             
                             <div class="mb-3">
