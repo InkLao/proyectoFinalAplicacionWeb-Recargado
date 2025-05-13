@@ -84,7 +84,7 @@ public class UsuarioDAO implements IUsuarioDAO{
      * {@inheritDoc}
      */
     @Override
-    public Usuario buscarUsuario(Object id) {
+    public Usuario buscarUsuario(ObjectId id) {
         try {
             ObjectId objectId = new ObjectId(id.toString());
             return collectionUsuario.find(Filters.eq("_id", objectId)).first();

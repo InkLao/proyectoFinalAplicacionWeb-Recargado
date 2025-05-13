@@ -25,7 +25,7 @@ public interface IUsuarioDAO {
     Usuario editarUsuario(Usuario usuario);
 
     /** Busca un usuario por su identificador. */
-    Usuario buscarUsuario(Object id);
+    Usuario buscarUsuario(ObjectId id);
     
     /** Busca y elimina un usuario de la base de datos. */
     public boolean eliminarUsuarioPorId(ObjectId id);

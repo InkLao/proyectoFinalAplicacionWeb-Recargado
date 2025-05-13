@@ -6,7 +6,6 @@ package daos;
 
 import colecciones.Ejercicio;
 import colecciones.GrupoMuscular;
-import colecciones.Usuario;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
@@ -34,7 +33,7 @@ public class EjercicioDAO implements IEjercicioDAO{
     
     
     /**
-     * Constructor que inicializa la conexión con la base de datos y la colección "usuarios".
+     * Constructor que inicializa la conexión con la base de datos y la colección "ejercicios".
      */
     public EjercicioDAO() {
         this.baseDeDatos = new ConexionBD().conexion();
