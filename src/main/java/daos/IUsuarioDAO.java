@@ -6,6 +6,7 @@ package daos;
 
 import colecciones.Usuario;
 import java.util.List;
+import org.bson.types.ObjectId;
 
 /**
  * Interfaz para definir las operaciones de acceso a datos relacionadas con Usuarios.
@@ -25,6 +26,9 @@ public interface IUsuarioDAO {
 
     /** Busca un usuario por su identificador. */
     Usuario buscarUsuario(Object id);
+    
+    /** Busca y elimina un usuario de la base de datos. */
+    public boolean eliminarUsuarioPorId(ObjectId id);
 
     /** Busca un usuario por su correo y contraseña. */
     Usuario buscarUsuarioIniciarSesion(String correo, String contra);

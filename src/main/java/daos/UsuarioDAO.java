@@ -9,10 +9,12 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
+import com.mongodb.client.result.DeleteResult;
 import conexionBD.ConexionBD;
 import java.util.ArrayList;
 import java.util.List;
 import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 
 /**
@@ -91,6 +93,11 @@ public class UsuarioDAO implements IUsuarioDAO{
             return null;
         }
     }
+    
+    
+    
+    
+    
 
     /**
      * {@inheritDoc}
@@ -100,6 +107,20 @@ public class UsuarioDAO implements IUsuarioDAO{
         long count = collectionUsuario.countDocuments(Filters.eq("correo", nombreUsaurio));
         return count > 0;
     }
+    
+    
+    
+    @Override
+    public boolean eliminarUsuarioPorId(ObjectId id) {
+        
+        Bson filtro = Filters.eq("_id", id);
+
+        DeleteResult resultado = collectionUsuario.deleteOne(filtro);
+
+        return resultado.getDeletedCount() > 0;
+    }
+    
+    
 
     /**
      * {@inheritDoc}
