@@ -8,8 +8,10 @@ daos\IUsuarioDAO.class
 colecciones\Ejercicio.class
 daos\RutinaDAO.class
 colecciones\Rutina.class
+com\mycompany\proyectofinalaplicacionweb\EliminarRutinaServlet.class
 conexionBD\ConexionBD.class
 colecciones\GrupoMuscular.class
+com\mycompany\proyectofinalaplicacionweb\CrearRutinaServlet.class
 daos\EjercicioDAO.class
 daos\UsuarioDAO.class
 daos\IEjercicioDAO.class
