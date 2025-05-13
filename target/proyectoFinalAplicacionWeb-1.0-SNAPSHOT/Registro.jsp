@@ -26,6 +26,7 @@
             Usuario nuevoUsuario = new Usuario(nombre, usuario, contrasena);
             usuarioDAO.agregarUsuario(nuevoUsuario);
             mensaje = "Usuario registrado exitosamente!";
+            response.sendRedirect("IniciarSesionJSP.jsp");
         } else {
             mensaje = "El nombre de usuario ya está en uso";
         }

@@ -4,20 +4,41 @@
     Author     : eduar
 --%>
 
+
+<%@page import="colecciones.Usuario"%>
+<%@page import="daos.UsuarioDAO"%>
+<%@page import="daos.IUsuarioDAO"%>
 <%@page import="objetoNegocio.ControlUsuarios"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 
 <%
     String accion = request.getParameter("accion");
+    
+    String nombre = request.getParameter("nombre");
     String password = request.getParameter("password");
+    
     String mensaje = request.getParameter("mensaje");
     
+    
+    IUsuarioDAO usuarioDAO = new UsuarioDAO();
+    
+    
     if ("Iniciar".equals(accion)) {
-        String nombre = request.getParameter("nombre");
+    
+        Usuario usuario = usuarioDAO.buscarUsuarioPorNombreUsuario(nombre);
+        
+        if (usuario != null && usuario.getContrasena().equals(password)) {
+            request.setAttribute("usuario", usuario); // Enviar el objeto
+            RequestDispatcher dispatcher = request.getRequestDispatcher("InicioUsuario.jsp");
+            dispatcher.forward(request, response); // Redirección interna
+        }
+        
         if (ControlUsuarios.estaNombreUsuarioEnUso(nombre)) {
             if (nombre.equals("admin") && password.equals("admin")) {
                 response.sendRedirect("SeccionAdmin.jsp");
-            } else {
+            }
+            
+            else {
                 mensaje = "Credenciales incorrectas";
             }
         } else {
