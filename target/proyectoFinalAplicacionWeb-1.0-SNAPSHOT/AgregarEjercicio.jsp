@@ -37,7 +37,7 @@
         }
         
         String equipamiento = request.getParameter("equipamiento");
-        String url = request.getParameter("urlImagenIinicial");
+        String url = request.getParameter("urlImagenIncial");
         String series = request.getParameter("series");
         String repeticiones = request.getParameter("repeticiones");
         String tiempoDescanso = request.getParameter("tiempoDescanso");
@@ -53,6 +53,7 @@
             ejercicio.setGruposMusculares(gruposMusculares);
             ejercicio.setNombre(nombreEjercicio);
             ejercicio.setRepeticiones(Integer.valueOf(repeticiones));
+            ejercicio.setSeries(Integer.valueOf(series));
             ejercicio.setTiempoDescanso(Integer.valueOf(tiempoDescanso));
             ejercicio.setUrlImagenIncial(url);
         

@@ -341,7 +341,7 @@
                     <input type="hidden" id="selectedExercisesInput" name="selectedExercises">
 
                     <div class="d-grid gap-2 mt-4">
-                        <button type="submit" class="btn btn-primary">
+                        <button type="button" class="btn btn-primary" onclick="closeRoutineModal()">
                             <i class="fas fa-save me-1"></i> Guardar Rutina
                         </button>
                         <button type="button" class="btn btn-outline-secondary" onclick="closeRoutineModal()">
