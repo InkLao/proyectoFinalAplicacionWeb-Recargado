@@ -4,7 +4,6 @@
     Author     : Arturo ITSON
 --%>
 
-
 <%@page import="colecciones.GrupoMuscular"%>
 <%@page import="java.util.Arrays"%>
 <%@page import="java.util.List"%>
@@ -13,39 +12,44 @@
 <%@page import="colecciones.Ejercicio"%>
 <%@page import="daos.EjercicioDAO"%>
 <%@page import="daos.IEjercicioDAO"%>
+<%@page import="colecciones.Entrenador"%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
-
 <% 
+    // Verificar si es admin o entrenador
+    Entrenador entrenador = (Entrenador) session.getAttribute("entrenador");
+    boolean esEntrenador = entrenador != null;
     
+    if (!esEntrenador && session.getAttribute("admin") == null) {
+        response.sendRedirect("IniciarSesionJSP.jsp");
+        return;
+    }
+
     IEjercicioDAO ejercicioDAO = new EjercicioDAO();
     String accion = request.getParameter("accion");
     String mensaje = "";
 
     if ("guardar".equals(accion)) {
-        String nombreEjercicio = request.getParameter("nombreEjercicio");
+        String nombreEjercicio = request.getParameter("nombre");
         String descripcion = request.getParameter("descripcion");
         
         String[] gruposSeleccionados = request.getParameterValues("gruposMusculares");
         Set<GrupoMuscular> gruposMusculares = new HashSet<>();
         
-        for (String grupo : gruposSeleccionados) {
-                
-                    // Convertir el valor del String al valor del enum correspondiente
-                    GrupoMuscular grupoMuscular = GrupoMuscular.valueOf(grupo);
-                    gruposMusculares.add(grupoMuscular);
+        if (gruposSeleccionados != null) {
+            for (String grupo : gruposSeleccionados) {
+                GrupoMuscular grupoMuscular = GrupoMuscular.valueOf(grupo);
+                gruposMusculares.add(grupoMuscular);
+            }
         }
         
         String equipamiento = request.getParameter("equipamiento");
-        String url = request.getParameter("urlIinicial");
+        String url = request.getParameter("urlImagenIncial");
         String series = request.getParameter("series");
         String repeticiones = request.getParameter("repeticiones");
         String tiempoDescanso = request.getParameter("tiempoDescanso");
         
-        
-        
-
-        if (!ejercicioDAO.existeEjercicio(nombreEjercicio)) {
+        if (nombreEjercicio != null && !nombreEjercicio.trim().isEmpty() && !ejercicioDAO.existeEjercicio(nombreEjercicio)) {
             Ejercicio ejercicio = new Ejercicio();
             
             ejercicio.setDescripcion(descripcion);
@@ -53,20 +57,24 @@
             ejercicio.setGruposMusculares(gruposMusculares);
             ejercicio.setNombre(nombreEjercicio);
             ejercicio.setRepeticiones(Integer.valueOf(repeticiones));
+            ejercicio.setSeries(Integer.valueOf(series));
             ejercicio.setTiempoDescanso(Integer.valueOf(tiempoDescanso));
             ejercicio.setUrlImagenIncial(url);
         
-        
             ejercicioDAO.agregarEjercicio(ejercicio);
             
-            mensaje = "ejercicio registrado exitosamente!";
-            response.sendRedirect("SeccionAdmin.jsp");
+            // Redirección según el tipo de usuario
+            if (esEntrenador) {
+                response.sendRedirect("SeccionEntrenador.jsp?mensaje=Ejercicio guardado exitosamente");
+            } else {
+                response.sendRedirect("SeccionAdmin.jsp?mensaje=Ejercicio guardado exitosamente");
+            }
+            return;
         } else {
-            mensaje = "El nombre de usuario ya está en uso";
+            mensaje = "El nombre de ejercicio ya está en uso o es inválido";
         }
     }
 %>
-
 
 <!DOCTYPE html>
 <html lang="es">
