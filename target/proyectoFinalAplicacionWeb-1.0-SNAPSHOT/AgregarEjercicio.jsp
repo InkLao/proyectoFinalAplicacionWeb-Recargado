@@ -4,7 +4,6 @@
     Author     : Arturo ITSON
 --%>
 
-
 <%@page import="colecciones.GrupoMuscular"%>
 <%@page import="java.util.Arrays"%>
 <%@page import="java.util.List"%>
@@ -13,11 +12,19 @@
 <%@page import="colecciones.Ejercicio"%>
 <%@page import="daos.EjercicioDAO"%>
 <%@page import="daos.IEjercicioDAO"%>
+<%@page import="colecciones.Entrenador"%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
-
 <% 
+    // Verificar si es admin o entrenador
+    Entrenador entrenador = (Entrenador) session.getAttribute("entrenador");
+    boolean esEntrenador = entrenador != null;
     
+    if (!esEntrenador && session.getAttribute("admin") == null) {
+        response.sendRedirect("IniciarSesionJSP.jsp");
+        return;
+    }
+
     IEjercicioDAO ejercicioDAO = new EjercicioDAO();
     String accion = request.getParameter("accion");
     String mensaje = "";
@@ -42,9 +49,6 @@
         String repeticiones = request.getParameter("repeticiones");
         String tiempoDescanso = request.getParameter("tiempoDescanso");
         
-        
-        
-
         if (nombreEjercicio != null && !nombreEjercicio.trim().isEmpty() && !ejercicioDAO.existeEjercicio(nombreEjercicio)) {
             Ejercicio ejercicio = new Ejercicio();
             
@@ -59,15 +63,18 @@
         
             ejercicioDAO.agregarEjercicio(ejercicio);
             
-            // Redirección inmediata después de guardar
-            response.sendRedirect("SeccionAdmin.jsp?mensaje=Ejercicio guardado exitosamente");
-            return; // Importante para evitar continuar procesando la página
+            // Redirección según el tipo de usuario
+            if (esEntrenador) {
+                response.sendRedirect("SeccionEntrenador.jsp?mensaje=Ejercicio guardado exitosamente");
+            } else {
+                response.sendRedirect("SeccionAdmin.jsp?mensaje=Ejercicio guardado exitosamente");
+            }
+            return;
         } else {
             mensaje = "El nombre de ejercicio ya está en uso o es inválido";
         }
     }
 %>
-
 
 <!DOCTYPE html>
 <html lang="es">
