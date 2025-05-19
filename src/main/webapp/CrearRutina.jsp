@@ -13,16 +13,39 @@
 <%@page import="org.bson.types.ObjectId"%>
 <%@page import="colecciones.Rutina"%>
 <%@page import="colecciones.Ejercicio"%>
+<%@page import="colecciones.Entrenador"%>
+<%@page import="colecciones.Usuario"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 
 <%
+    // Verificar sesión
+    HttpSession sessionObj = request.getSession(false);
+    boolean esEntrenador = "true".equals(request.getParameter("esEntrenador"));
+    String nombreUsuario = "";
+    
+    if (esEntrenador) {
+        Entrenador entrenador = (Entrenador) sessionObj.getAttribute("entrenador");
+        if (entrenador == null) {
+            response.sendRedirect("IniciarSesionJSP.jsp");
+            return;
+        }
+        nombreUsuario = entrenador.getUsuario();
+    } else {
+        Usuario usuario = (Usuario) sessionObj.getAttribute("usuario");
+        if (usuario == null) {
+            response.sendRedirect("IniciarSesionJSP.jsp");
+            return;
+        }
+        nombreUsuario = usuario.getUsuario();
+    }
+    
     // 1. Obtener parámetros
     String nombreRutina = request.getParameter("nombreRutina");
     String[] idsEjercicios = request.getParameterValues("ejercicios");
     
     // 2. Validar selección
     if (idsEjercicios == null || idsEjercicios.length == 0) {
-        session.setAttribute("error", "Debes seleccionar al menos un ejercicio");
+        sessionObj.setAttribute("error", "Debes seleccionar al menos un ejercicio");
         response.sendRedirect("CrearRutina.jsp");
         return;
     }
@@ -42,13 +65,17 @@
     Rutina nuevaRutina = new Rutina();
     nuevaRutina.setNombreRutina(nombreRutina);
     nuevaRutina.setEjercicios(ejercicios);
-    nuevaRutina.setNombreUsuario("cliente"); // Cambiar por usuario real luego
-    nuevaRutina.setAsignadaPorEntrenador(false);
+    nuevaRutina.setNombreUsuario(nombreUsuario);
+    nuevaRutina.setAsignadaPorEntrenador(esEntrenador);
+    nuevaRutina.setNombreEntrenador(esEntrenador ? nombreUsuario : null);
     
     IRutinaDAO rutinaDAO = new RutinaDAO();
     rutinaDAO.agregarRutina(nuevaRutina);
     
     // 5. Redirigir con mensaje de éxito
-    session.setAttribute("mensaje", "Rutina creada exitosamente!");
-    response.sendRedirect("InicioUsuario.jsp");
+    if (esEntrenador) {
+        response.sendRedirect("SeccionEntrenador.jsp?mensaje=Rutina creada exitosamente!");
+    } else {
+        response.sendRedirect("InicioUsuario.jsp?mensaje=Rutina creada exitosamente!");
+    }
 %>
