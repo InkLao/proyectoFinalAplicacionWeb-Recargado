@@ -49,8 +49,14 @@
             
             if (usuario != null && usuario.getContrasena().equals(password)) {
                 request.setAttribute("usuario", usuario); // Enviar el objeto
+                
+                // Enviamos el objeto a la seccion podiendolo obtener aunque se recargue la pagina
+                request.getSession().setAttribute("usuario", usuario);
+                
+                
                 RequestDispatcher dispatcher = request.getRequestDispatcher("InicioUsuario.jsp");
                 dispatcher.forward(request, response); // Redirección interna
+                
                 return;
             } else {
                 mensaje = "Credenciales incorrectas";
