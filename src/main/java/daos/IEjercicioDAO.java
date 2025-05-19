@@ -40,5 +40,7 @@ public interface IEjercicioDAO {
     /** Regresa una lista con todos los ejercicios por grupoMuscular */
     public List<Ejercicio> obtenerTodosLosEjerciciosPorEquipamiento(String equipamiento);
     
+    public List<Ejercicio> buscarPorNombre(String nombre) ;
+    
     
 }

@@ -14,6 +14,7 @@ import com.mongodb.client.result.DeleteResult;
 import conexionBD.ConexionBD;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
@@ -128,6 +129,13 @@ public class EjercicioDAO implements IEjercicioDAO{
         
         Bson filtro = Filters.eq("equipamiento", equipamiento);
         
+        return collectionEjercicio.find(filtro).into(new ArrayList<>());
+    }
+    
+    
+    @Override
+    public List<Ejercicio> buscarPorNombre(String nombre) {
+        Bson filtro = Filters.regex("nombre", ".*" + Pattern.quote(nombre) + ".*", "i"); // Insensible a mayúsculas
         return collectionEjercicio.find(filtro).into(new ArrayList<>());
     }
     

@@ -4,6 +4,7 @@
     Author     : Arturo ITSON
 --%>
 
+<%@page import="java.util.ArrayList"%>
 <%@page import="colecciones.Rutina"%>
 <%@page import="daos.RutinaDAO"%>
 <%@page import="daos.IRutinaDAO"%>
@@ -16,9 +17,19 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 
 <%
-    // Verificar si el usuario está logueado
-    Usuario usuario = (Usuario) request.getAttribute("usuario");
-    if (usuario == null) {
+    HttpSession sesion = request.getSession(false);
+    Usuario usuario = null;
+    if (sesion != null) {
+        usuario = (Usuario) sesion.getAttribute("usuario");
+    }
+
+    String accion = request.getParameter("accion");
+
+    if ("cerrarSesion".equalsIgnoreCase(accion)) {
+        // Si el usuario está logueado, invalida la sesión
+        if (usuario != null) {
+            sesion.invalidate(); // cerrar sesión correctamente
+        }
         response.sendRedirect("IniciarSesionJSP.jsp");
         return;
     }
@@ -203,11 +214,32 @@
 
             <h3 class="mb-3"><i class="fas fa-dumbbell"></i> Ejercicios Disponibles</h3>
 
-            <%
-                IEjercicioDAO ejercicioDAO = new EjercicioDAO();
-                List<Ejercicio> ejercicios = ejercicioDAO.obtenerTodosLosEjercicios();
-            %>
+        <%
+            accion = request.getParameter("accion");
+            String filtroNombre = request.getParameter("filtroNombre");
 
+            IEjercicioDAO ejercicioDAO = new EjercicioDAO();
+            List<Ejercicio> ejercicios = new ArrayList<>();
+
+            if ("buscarEjercicios".equals(accion)) {
+                if (filtroNombre != null && !filtroNombre.trim().isEmpty()) {
+                    ejercicios = ejercicioDAO.buscarPorNombre(filtroNombre.trim());
+                } else {
+                    ejercicios = ejercicioDAO.obtenerTodosLosEjercicios();
+                }
+            } else {
+                // Opción: puedes decidir si mostrar todos por defecto o nada
+                ejercicios = ejercicioDAO.obtenerTodosLosEjercicios(); // o simplemente dejar la lista vacía
+            }
+        %>
+
+            
+            <form method="get" action="InicioUsuario.jsp" class="d-flex mb-4" role="search">
+                <input type="text" name="filtroNombre" class="form-control me-2" placeholder="Buscar ejercicio por nombre"
+                    value="<%= request.getParameter("filtroNombre") != null ? request.getParameter("filtroNombre") : "" %>">
+                <button class="btn btn-outline-primary" type="submit" >Buscar</button>
+                <input type="hidden" name="accion" value="buscarEjercicios">
+            </form>
             <div class="row">
                 <% for (Ejercicio ejercicio : ejercicios) { %>
                 <div class="col-md-4 mb-4">
