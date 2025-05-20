@@ -5,6 +5,7 @@ colecciones\Entrenador.class
 com\mycompany\proyectofinalaplicacionweb\resources\JakartaEE11Resource.class
 com\mycompany\proyectofinalaplicacionweb\JakartaRestConfiguration.class
 com\mycompany\proyectofinalaplicacionweb\LogoutServlet.class
+daos\CerrarDatos.class
 daos\IUsuarioDAO.class
 colecciones\Ejercicio.class
 daos\EntrenadorDAO.class

@@ -5,6 +5,7 @@
 package com.mycompany.proyectofinalaplicacionweb;
 
 import colecciones.Ejercicio;
+import colecciones.Entrenador;
 import colecciones.Rutina;
 import colecciones.Usuario;
 import daos.EjercicioDAO;
@@ -29,7 +30,7 @@ public class CrearRutinaServlet extends HttpServlet {
             throws ServletException, IOException {
         
         HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("usuario") == null) {
+        if (session == null) {
             response.sendRedirect("IniciarSesionJSP.jsp");
             return;
         }
@@ -38,9 +39,14 @@ public class CrearRutinaServlet extends HttpServlet {
             // Obtener usuario de la sesión
             Usuario usuario = (Usuario) session.getAttribute("usuario");
             
+            Entrenador entrenador = (Entrenador) session.getAttribute("entrenador");
+            
             // Obtener parámetros del formulario
             String nombreRutina = request.getParameter("routineName");
             String[] ejerciciosIds = request.getParameter("selectedExercises").split(",");
+            
+           
+            
             
             // Validaciones básicas
             if (nombreRutina == null || nombreRutina.trim().isEmpty()) {
@@ -67,23 +73,43 @@ public class CrearRutinaServlet extends HttpServlet {
                 }
             }
             
+            
+            
             // Crear y guardar la rutina
             Rutina nuevaRutina = new Rutina();
             nuevaRutina.setNombreRutina(nombreRutina);
-            nuevaRutina.setAsignadaPorEntrenador(false);
             nuevaRutina.setEjercicios(ejercicios);
-            nuevaRutina.setNombreUsuario(usuario.getUsuario());
-            nuevaRutina.setNombreEntrenador(null);
+            
+            if(entrenador != null){
+                nuevaRutina.setAsignadaPorEntrenador(true);
+                nuevaRutina.setNombreEntrenador(entrenador.getUsuario());
+                nuevaRutina.setNombreUsuario(request.getParameter("userName"));
+            }
+            else{
+                nuevaRutina.setAsignadaPorEntrenador(false);
+                nuevaRutina.setNombreEntrenador("N/A");
+                nuevaRutina.setNombreUsuario(usuario.getUsuario());
+            }
+            
             
             IRutinaDAO rutinaDAO = new RutinaDAO();
             rutinaDAO.agregarRutina(nuevaRutina);
             
-            // Redirigir manteniendo la sesión
-            response.sendRedirect("InicioUsuario.jsp?mensaje=Rutina creada exitosamente");
+            
+            if(usuario != null){
+                // Redirigir manteniendo la sesión
+                response.sendRedirect("InicioUsuario.jsp?mensaje=Rutina creada exitosamente");
+            }
+            
+            else{
+                // Redirigir manteniendo la sesión
+                response.sendRedirect("SeccionEntrenador.jsp?mensaje=Rutina creada exitosamente");
+            
+            }
             
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect("InicioUsuario.jsp?error=Error al crear la rutina: " + e.getMessage());
+            response.sendRedirect("IniciarSesionJSP.jsp?error=Error al crear la rutina: " + e.getMessage());
         }
     }
 }

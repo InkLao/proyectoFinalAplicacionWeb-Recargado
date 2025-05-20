@@ -21,29 +21,55 @@ import org.bson.codecs.pojo.PojoCodecProvider;
  */
 public class ConexionBD {
     
-        public MongoDatabase conexion() {
-            
-            
-            
+    private static ConexionBD instancia;
+    private MongoClient mongoClient;
+    private MongoDatabase mongoDatabase;
+
+    // Nombre de la base de datos
+    private static final String DB_NAME = "FitRoutine";
+
+    // Constructor privado para evitar instanciación externa
+    private ConexionBD() {
         CodecRegistry codecRegistry = fromRegistries(
             MongoClientSettings.getDefaultCodecRegistry(),
             fromProviders(PojoCodecProvider.builder().automatic(true).build())
         );
 
-        // Configura la cadena de conexión a la base de datos MongoDB local
-        ConnectionString cadenaConexion = new ConnectionString("mongodb://localhost/27017");
+        ConnectionString cadenaConexion = new ConnectionString("mongodb://localhost:27017");
 
-        // Configura los ajustes del cliente MongoDB, incluyendo la cadena de conexión y el registro de códecs
-        MongoClientSettings clientsSettings = MongoClientSettings.builder()
-                .applyConnectionString(cadenaConexion)
-                .codecRegistry(codecRegistry)
-                .build();
+        MongoClientSettings clientSettings = MongoClientSettings.builder()
+            .applyConnectionString(cadenaConexion)
+            .codecRegistry(codecRegistry)
+            .build();
 
-        // Crea un cliente MongoDB utilizando los ajustes configurados
-        MongoClient dbServer = MongoClients.create(clientsSettings);
+        mongoClient = MongoClients.create(clientSettings);
+        mongoDatabase = mongoClient.getDatabase(DB_NAME);
+    }
 
-        // Obtiene la base de datos específica ("ClaseBaseDatosAvanzadas") del cliente MongoDB
-        return dbServer.getDatabase("FitRoutine");
+    // Método público para obtener la instancia singleton
+    public static ConexionBD getInstancia() {
+        if (instancia == null) {
+            synchronized (ConexionBD.class) {
+                if (instancia == null) {
+                    instancia = new ConexionBD();
+                }
+            }
+        }
+        return instancia;
+    }
+
+    // Método para obtener la base de datos
+    public MongoDatabase getDatabase() {
+        return mongoDatabase;
+    }
+
+    // Método para cerrar la conexión (llamar al parar la app)
+    public void cerrarConexion() {
+        if (mongoClient != null) {
+            mongoClient.close();
+            mongoClient = null;
+            instancia = null;
+        }
     }
     
 }

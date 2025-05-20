@@ -35,7 +35,7 @@ public class RutinaDAO implements IRutinaDAO{
      * Constructor que inicializa la conexión con la base de datos y la colección "rutinas".
      */
     public RutinaDAO() {
-        this.baseDeDatos = new ConexionBD().conexion();
+        this.baseDeDatos = ConexionBD.getInstancia().getDatabase();
         this.collectionRutina = baseDeDatos.getCollection("rutinas", Rutina.class);
     }
     

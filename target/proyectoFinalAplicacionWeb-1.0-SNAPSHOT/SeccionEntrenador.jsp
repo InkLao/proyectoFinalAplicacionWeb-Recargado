@@ -411,6 +411,62 @@
         
         
         
+        <%
+                List<Rutina> rutinas = rutinaDAO.obtenerTodosLasRutinasPorEntrenador(entrenador.getNombre());
+            %>
+
+            <% if (rutinas.isEmpty()) { %>
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>No has creado ninguna rutina aún. ¡Crea tu primera rutina!
+            </div>
+            <% } else { %>
+            <div class="row">
+                <% for (Rutina rutina : rutinas) {%>
+                <div class="col-md-6 mb-4">
+                    <div class="card routine-card h-100">
+                        <div class="card-header">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="card-title mb-0"><%= rutina.getNombreRutina()%></h5>
+                                <span class="badge <%= rutina.isAsignadaPorEntrenador() ? "bg-success" : "bg-primary"%>">
+                                    <%= rutina.isAsignadaPorEntrenador() ? "Cliente: " + rutina.getNombreUsuario()  : "Personalizada"%>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <h6 class="card-subtitle mb-3"><i class="fas fa-dumbbell me-2"></i>Ejercicios:</h6>
+                            <ul class="list-group list-group-flush mb-3">
+                                <% for (Ejercicio ejercicio : rutina.getEjercicios()) {%>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong><%= ejercicio.getNombre()%></strong><br>
+                                        <small class="text-muted">
+                                            <%= ejercicio.getSeries()%>x<%= ejercicio.getRepeticiones()%> rep • 
+                                            <%= ejercicio.getTiempoDescanso()%>s descanso
+                                        </small>
+                                    </div>
+                                    <div>
+                                        <% for (GrupoMuscular grupo : ejercicio.getGruposMusculares()) {%>
+                                        <span class="badge bg-primary me-1"><%= grupo%></span>
+                                        <% }%>
+                                    </div>
+                                </li>
+                                <% } %>
+                            </ul>
+                        </div>
+                        <div class="card-footer text-end">
+                            <button class="btn btn-sm btn-outline-danger" onclick="eliminarRutina('<%= rutina.getId().toString() %>')">
+                                <i class="fas fa-trash me-1"></i>Eliminar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <% } %>
+            </div>
+            <% }%>
+        </div>
+        
+        
+        
         
     </div>
 

@@ -34,7 +34,7 @@ public class UsuarioDAO implements IUsuarioDAO{
      * Constructor que inicializa la conexión con la base de datos y la colección "usuarios".
      */
     public UsuarioDAO() {
-        this.baseDeDatos = new ConexionBD().conexion();
+        this.baseDeDatos = ConexionBD.getInstancia().getDatabase();
         this.collectionUsuario = baseDeDatos.getCollection("usuarios", Usuario.class);
     }
     

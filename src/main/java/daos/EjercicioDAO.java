@@ -37,7 +37,7 @@ public class EjercicioDAO implements IEjercicioDAO{
      * Constructor que inicializa la conexión con la base de datos y la colección "ejercicios".
      */
     public EjercicioDAO() {
-        this.baseDeDatos = new ConexionBD().conexion();
+        this.baseDeDatos = ConexionBD.getInstancia().getDatabase();
         this.collectionEjercicio = baseDeDatos.getCollection("ejercicios", Ejercicio.class);
     }
     

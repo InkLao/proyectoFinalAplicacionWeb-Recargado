@@ -22,7 +22,7 @@ public class EntrenadorDAO implements IEntrenadorDAO {
     private final MongoCollection<Entrenador> collectionEntrenador;
     
     public EntrenadorDAO() {
-        this.baseDeDatos = new ConexionBD().conexion();
+        this.baseDeDatos = ConexionBD.getInstancia().getDatabase();
         this.collectionEntrenador = baseDeDatos.getCollection("entrenadores", Entrenador.class);
     }
 

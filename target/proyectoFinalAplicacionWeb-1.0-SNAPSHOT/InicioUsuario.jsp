@@ -58,9 +58,10 @@
         
         Rutina rutina = new Rutina();
         rutina.setNombreRutina(nombreRutina);
+        rutina.setNombreEntrenador("Sin Entrenador");
         rutina.setNombreUsuario(nombreUsuario);
         rutina.setAsignadaPorEntrenador(false);
-        rutina.setNombreEntrenador("Sin Entrenador");
+        
         rutina.setEjercicios(ejercicios);
         
         
