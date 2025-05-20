@@ -24,6 +24,8 @@
     }
 
     String accion = request.getParameter("accion");
+    
+    
 
     if ("cerrarSesion".equalsIgnoreCase(accion)) {
         // Si el usuario está logueado, invalida la sesión
@@ -93,26 +95,50 @@
 
             /* Estilos para el modal de rutinas */
             .routine-modal {
-                display: none;
-                position: fixed;
-                z-index: 1050;
-                left: 0;
-                top: 0;
-                width: 100%;
-                height: 100%;
-                background-color: rgba(0,0,0,0.5);
-            }
+    display: none;
+    position: fixed;
+    z-index: 1050;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: rgba(0, 0, 0, 0.5);
+}
 
-            .routine-modal-content {
-                background-color: white;
-                margin: 5% auto;
-                padding: 25px;
-                border-radius: 10px;
-                width: 90%;
-                max-width: 600px;
-                box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-                animation: modalFadeIn 0.3s;
-            }
+.routine-modal-content {
+    background-color: #fff;
+    margin: 4% auto;
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.modal-header-custom {
+    padding: 16px;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-body-custom {
+    padding: 16px;
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+.modal-footer-custom {
+    padding: 16px;
+    background-color: #f8f9fa;
+    border-top: 1px solid #ddd;
+}
+
 
             @keyframes modalFadeIn {
                 from {opacity: 0; transform: translateY(-20px);}
@@ -327,169 +353,185 @@
             <% }%>
         </div>
 
-        <!-- Modal para crear rutinas -->
-        <div id="routineModal" class="routine-modal">
-            <div class="routine-modal-content">
-                <span class="close" onclick="closeRoutineModal()" style="float: right; cursor: pointer; font-size: 24px;">&times;</span>
-                <h3 class="mb-4"><i class="fas fa-plus-circle me-2"></i>Crear Nueva Rutina</h3>
-                <form id="routineForm" action="CrearRutinaServlet" method="POST">
-                    <input type="hidden" name="nombreUsuario" value="<%= usuario.getUsuario()%>">
-
-                    <div class="mb-3">
-                        <label for="routineName" class="form-label">Nombre de la Rutina</label>
-                        <input type="text" class="form-control" id="routineName" name="routineName" required
-                               placeholder="Ej: Rutina de pecho y tríceps">
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Seleccionar Ejercicios</label>
-                        <div class="input-group mb-2">
-                            <input type="text" id="exerciseSearch" class="form-control" placeholder="Buscar ejercicios...">
-                            <button class="btn btn-outline-secondary" type="button" onclick="buscarEjercicios()">
-                                <i class="fas fa-search"></i>
-                            </button>
-                        </div>
-                        <div class="exercise-selection" id="exerciseSelection">
-                            <% for (Ejercicio ejercicio : ejercicios) {%>
-                            <div class="form-check mb-2">
-                                <input class="form-check-input exercise-checkbox" type="checkbox" 
-                                       value="<%= ejercicio.getId().toString()%>" 
-                                       id="ex-<%= ejercicio.getId().toString()%>">
-                                <label class="form-check-label" for="ex-<%= ejercicio.getId().toString()%>">
-                                    <strong><%= ejercicio.getNombre()%></strong> - 
-                                    <% for (GrupoMuscular grupo : ejercicio.getGruposMusculares()) {%>
-                                    <span class="badge bg-primary me-1"><%= grupo%></span>
-                                    <% }%>
-                                </label>
-                            </div>
-                            <% } %>
-                        </div>
-                    </div>
-
-                    <div class="selected-exercises" id="selectedExercises">
-                        <p class="text-muted mb-0"><i class="fas fa-info-circle me-1"></i>No hay ejercicios seleccionados</p>
-                    </div>
-
-                    <input type="hidden" id="selectedExercisesInput" name="selectedExercises">
-
-                    <div class="d-grid gap-2 mt-4">
-                        <button type="button" class="btn btn-primary" onclick="closeRoutineModal()">
-                            <i class="fas fa-save me-1"></i> Guardar Rutina
-                        </button>
-                        <button type="button" class="btn btn-outline-secondary" onclick="closeRoutineModal()">
-                            Cancelar
-                        </button>
-                    </div>
-                </form>
-            </div>
+<!-- Modal para crear rutinas -->
+<div id="routineModal" class="routine-modal">
+    <div class="routine-modal-content d-flex flex-column">
+        
+        <!-- Encabezado -->
+        <div class="modal-header-custom">
+            <h3 class="mb-0"><i class="fas fa-plus-circle me-2"></i>Crear Nueva Rutina</h3>
+            <span class="close" onclick="closeRoutineModal()">&times;</span>
         </div>
 
-        <script>
-            // Función para abrir el modal
-            function openRoutineModal() {
-                document.getElementById('routineModal').style.display = 'block';
-                document.getElementById('routineName').focus();
-            }
-            
-            // Función para cerrar el modal
-            function closeRoutineModal() {
-                document.getElementById('routineModal').style.display = 'none';
-            }
-            
-            // Actualizar lista de ejercicios seleccionados
-            function updateSelectedExercises() {
-                const selectedContainer = document.getElementById('selectedExercises');
-                const checkboxes = document.querySelectorAll('.exercise-checkbox:checked');
-                const hiddenInput = document.getElementById('selectedExercisesInput');
-                
-                if (checkboxes.length === 0) {
-                    selectedContainer.innerHTML = '<p class="text-muted mb-0"><i class="fas fa-info-circle me-1"></i>No hay ejercicios seleccionados</p>';
-                    hiddenInput.value = '';
-                    return;
-                }
-                
-                let html = '<h6 class="mb-3"><i class="fas fa-check-circle text-success me-1"></i>Ejercicios seleccionados:</h6>';
-                let exerciseIds = [];
-                
-                checkboxes.forEach(checkbox => {
-                    const label = document.querySelector(`label[for="${checkbox.id}"]`).textContent;
-                    html += `
-                        <div class="selected-exercise-item">
-                            <span>${label}</span>
-                            <button type="button" class="btn btn-sm btn-outline-danger" 
-                                    onclick="document.getElementById('${checkbox.id}').checked = false; updateSelectedExercises();">
-                                <i class="fas fa-times"></i>
-                            </button>
+        <!-- Cuerpo scrollable -->
+        <div class="modal-body-custom">
+            <form id="routineForm" action="CrearRutinaServlet" method="POST">
+                <input type="hidden" name="nombreUsuario" value="<%= usuario.getUsuario() %>">
+
+                <div class="mb-3">
+                    <label for="routineName" class="form-label">Nombre de la Rutina</label>
+                    <input type="text" class="form-control" id="routineName" name="routineName" required
+                           placeholder="Ej: Rutina de pecho y tríceps">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Seleccionar Ejercicios</label>
+                    <div class="input-group mb-2">
+                        <input type="text" id="exerciseSearch" class="form-control" placeholder="Buscar ejercicios...">
+                        <button class="btn btn-outline-secondary" type="button" onclick="buscarEjercicios()">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                    <div class="exercise-selection" id="exerciseSelection">
+                        <% for (Ejercicio ejercicio : ejercicios) { %>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input exercise-checkbox" type="checkbox"
+                                   value="<%= ejercicio.getId().toString() %>"
+                                   id="ex-<%= ejercicio.getId().toString() %>"
+                                   data-name="<%= ejercicio.getNombre() %>"
+                                   onchange="updateSelectedExercises()">
+                            <label class="form-check-label" for="ex-<%= ejercicio.getId().toString() %>">
+                                <strong><%= ejercicio.getNombre() %></strong> -
+                                <% for (GrupoMuscular grupo : ejercicio.getGruposMusculares()) { %>
+                                <span class="badge bg-primary me-1"><%= grupo %></span>
+                                <% } %>
+                            </label>
                         </div>
-                    `;
-                    exerciseIds.push(checkbox.value);
-                });
-                
-                selectedContainer.innerHTML = html;
-                hiddenInput.value = exerciseIds.join(',');
+                        <% } %>
+                    </div>
+                </div>
+
+                <div class="selected-exercises" id="selectedExercises">
+                    <p class="text-muted mb-0"><i class="fas fa-info-circle me-1"></i>No hay ejercicios seleccionados</p>
+                </div>
+
+                <input type="hidden" id="selectedExercisesInput" name="selectedExercises">
+            </form>
+        </div>
+
+        <!-- Botones fijos -->
+        <div class="modal-footer-custom d-grid gap-2">
+            <button type="submit" class="btn btn-primary" form="routineForm">
+                <i class="fas fa-save me-1"></i> Guardar Rutina
+            </button>
+            <button type="button" class="btn btn-outline-secondary" onclick="closeRoutineModal()">
+                Cancelar
+            </button>
+        </div>
+
+    </div>
+</div>
+
+
+<script>
+function openRoutineModal() {
+    document.getElementById('routineModal').style.display = 'block';
+    document.getElementById('routineName').focus();
+}
+
+function closeRoutineModal() {
+    document.getElementById('routineModal').style.display = 'none';
+}
+
+function updateSelectedExercises() {
+    const selectedContainer = document.getElementById('selectedExercises');
+    const checkboxes = document.querySelectorAll('.exercise-checkbox:checked');
+    const selectedIds = [];
+    let html = "";
+
+    if (checkboxes.length === 0) {
+        selectedContainer.innerHTML = `<p class="text-muted mb-0"><i class="fas fa-info-circle me-1"></i>No hay ejercicios seleccionados</p>`;
+        document.getElementById('selectedExercisesInput').value = "";
+        return;
+    }
+
+    html += `<h6>Ejercicios seleccionados:</h6>`;
+
+checkboxes.forEach(cb => {
+    const nombreEjercicio = cb.dataset.name || "Ejercicio";
+    const checkboxId = cb.id;
+
+    console.log("Ejercicio:", nombreEjercicio, "Checkbox ID:", checkboxId);
+
+
+    html += 
+  '<div style="background: #fff; border: 1px solid #ddd; border-radius: 6px; padding: 8px 12px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center;">' +
+    '<div style="display: flex; align-items: center; color: #333; font-weight: 500;">' +
+      '<i class="fas fa-dumbbell text-primary me-2" style="margin-right: 8px;"></i>' +
+      nombreEjercicio +
+    '</div>' +
+    '<button type="button" class="btn btn-sm btn-outline-danger" ' +
+            'onclick="document.getElementById(\'' + checkboxId + '\').checked = false; updateSelectedExercises();">' +
+        '<i class="fas fa-times"></i>' +
+    '</button>' +
+  '</div>';
+
+    selectedIds.push(cb.value);
+});
+
+
+
+    console.log('HTML generado:', html);
+
+    selectedContainer.innerHTML = html;
+    document.getElementById('selectedExercisesInput').value = selectedIds.join(',');
+}
+
+
+function buscarEjercicios() {
+    const query = document.getElementById('exerciseSearch').value.toLowerCase();
+    const checkboxes = document.querySelectorAll('.exercise-checkbox');
+
+    checkboxes.forEach(checkbox => {
+        const label = document.querySelector(`label[for="${checkbox.id}"]`).textContent.toLowerCase();
+        const item = checkbox.closest('.form-check');
+
+        if (label.includes(query)) {
+            item.style.display = 'block';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+}
+
+function eliminarRutina(idRutina) {
+    if (confirm('¿Estás seguro de que deseas eliminar esta rutina? Esta acción no se puede deshacer.')) {
+        fetch('EliminarRutinaServlet?id=' + idRutina, {
+            method: 'POST'
+        }).then(response => {
+            if (response.ok) {
+                location.reload();
+            } else {
+                alert('Error al eliminar la rutina');
             }
-            
-            // Buscar ejercicios en el modal
-            function buscarEjercicios() {
-                const query = document.getElementById('exerciseSearch').value.toLowerCase();
-                const checkboxes = document.querySelectorAll('.exercise-checkbox');
-                
-                checkboxes.forEach(checkbox => {
-                    const label = document.querySelector(`label[for="${checkbox.id}"]`).textContent.toLowerCase();
-                    const item = checkbox.closest('.form-check');
-                    
-                    if (label.includes(query)) {
-                        item.style.display = 'block';
-                    } else {
-                        item.style.display = 'none';
-                    }
-                });
-            }
-            
-            // Eliminar rutina
-            function eliminarRutina(idRutina) {
-                if (confirm('¿Estás seguro de que deseas eliminar esta rutina? Esta acción no se puede deshacer.')) {
-                    fetch('EliminarRutinaServlet?id=' + idRutina, {
-                        method: 'POST'
-                    }).then(response => {
-                        if (response.ok) {
-                            location.reload();
-                        } else {
-                            alert('Error al eliminar la rutina');
-                        }
-                    }).catch(error => {
-                        console.error('Error:', error);
-                        alert('Error al eliminar la rutina');
-                    });
-                }
-            }
-            
-            // Inicializar eventos
-            document.addEventListener('DOMContentLoaded', function() {
-                // Eventos para checkboxes
-                document.querySelectorAll('.exercise-checkbox').forEach(checkbox => {
-                    checkbox.addEventListener('change', updateSelectedExercises);
-                });
-                
-                // Validación del formulario
-                document.getElementById('routineForm').addEventListener('submit', function(e) {
-                    const checkboxes = document.querySelectorAll('.exercise-checkbox:checked');
-                    if (checkboxes.length === 0) {
-                        e.preventDefault();
-                        alert('Por favor selecciona al menos un ejercicio');
-                        return false;
-                    }
-                    return true;
-                });
-                
-                // Cerrar modal al hacer clic fuera del contenido
-                window.onclick = function(event) {
-                    const modal = document.getElementById('routineModal');
-                    if (event.target === modal) {
-                        closeRoutineModal();
-                    }
-                }
-            });
-        </script>
-    </body>
+        }).catch(error => {
+            console.error('Error:', error);
+            alert('Error al eliminar la rutina');
+        });
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.exercise-checkbox').forEach(cb => {
+        cb.addEventListener('change', updateSelectedExercises);
+    });
+
+    document.getElementById('routineForm').addEventListener('submit', function(e) {
+        const checkboxes = document.querySelectorAll('.exercise-checkbox:checked');
+        if (checkboxes.length === 0) {
+            e.preventDefault();
+            alert('Por favor selecciona al menos un ejercicio');
+            return false;
+        }
+        return true;
+    });
+
+    window.onclick = function(event) {
+        const modal = document.getElementById('routineModal');
+        if (event.target === modal) {
+            closeRoutineModal();
+        }
+    }
+});
+</script>
 </html>

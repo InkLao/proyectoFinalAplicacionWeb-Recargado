@@ -4,6 +4,8 @@
     Author     : eduar
 --%>
 
+<%@page import="java.util.ArrayList"%>
+<%@page import="java.util.List"%>
 <%@page import="colecciones.Rutina"%>
 <%@page import="colecciones.GrupoMuscular"%>
 <%@page import="daos.IRutinaDAO"%>
@@ -15,12 +17,25 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 
 <%
-    // Verificar si el usuario es un entrenador
-    Entrenador entrenador = (Entrenador) session.getAttribute("entrenador");
-    if (entrenador == null) {
+    
+    HttpSession sesion = request.getSession(false);
+    Entrenador entrenador = null;
+    if (sesion != null) {
+        entrenador = (Entrenador) sesion.getAttribute("entrenador");
+    }
+
+    String accion = request.getParameter("accion");
+
+    if ("cerrarSesion".equalsIgnoreCase(accion)) {
+        // Si el usuario está logueado, invalida la sesión
+        if (entrenador != null) {
+            sesion.invalidate(); // cerrar sesión correctamente
+        }
         response.sendRedirect("IniciarSesionJSP.jsp");
         return;
     }
+    
+   
 
     IEjercicioDAO ejercicioDAO = new EjercicioDAO();
     IRutinaDAO rutinaDAO = new RutinaDAO();
@@ -144,11 +159,40 @@
                     </button>
                 </li>
             </ul>
+            
+            <%
+            accion = request.getParameter("accion");
+            String filtroNombre = request.getParameter("filtroNombre");
+
+            List<Ejercicio> ejercicios = new ArrayList<>();
+
+            if ("buscarEjercicios".equals(accion)) {
+                if (filtroNombre != null && !filtroNombre.trim().isEmpty()) {
+                    ejercicios = ejercicioDAO.buscarPorNombre(filtroNombre.trim());
+                } else {
+                    ejercicios = ejercicioDAO.obtenerTodosLosEjercicios();
+                }
+            } else {
+                // Opción: puedes decidir si mostrar todos por defecto o nada
+                ejercicios = ejercicioDAO.obtenerTodosLosEjercicios(); // o simplemente dejar la lista vacía
+            }
+        %>
+        
+        <form method="get" action="SeccionEntrenador.jsp" class="d-flex mb-4" role="search">
+                <input type="text" name="filtroNombre" class="form-control me-2" placeholder="Buscar ejercicio por nombre"
+                    value="<%= request.getParameter("filtroNombre") != null ? request.getParameter("filtroNombre") : "" %>">
+                <button class="btn btn-outline-primary" type="submit" >Buscar</button>
+                <input type="hidden" name="accion" value="buscarEjercicios">
+            </form
+            
 
             <div class="tab-content" id="entrenadorTabsContent">
                 <div class="tab-pane fade show active" id="ejercicios" role="tabpanel" aria-labelledby="ejercicios-tab">
+                    
+                
+                    
                     <div class="row">
-                        <% for (Ejercicio ejercicio : ejercicioDAO.obtenerTodosLosEjercicios()) { %>
+                        <% for (Ejercicio ejercicio : ejercicios) { %>
                         <div class="col-md-4 mb-4">
                             <div class="exercise-card h-100">
                                 <% if (ejercicio.getUrlImagenIncial() != null && !ejercicio.getUrlImagenIncial().isEmpty()) { %>

@@ -25,6 +25,9 @@
         return;
     }
 
+    
+    
+    
     IEjercicioDAO ejercicioDAO = new EjercicioDAO();
     String accion = request.getParameter("accion");
     String mensaje = "";
