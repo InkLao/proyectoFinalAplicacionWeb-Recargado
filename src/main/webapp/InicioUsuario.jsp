@@ -60,6 +60,7 @@
         rutina.setNombreRutina(nombreRutina);
         rutina.setNombreUsuario(nombreUsuario);
         rutina.setAsignadaPorEntrenador(false);
+        rutina.setNombreEntrenador("none");
         rutina.setEjercicios(ejercicios);
 
         rutinaDAO.agregarRutina(rutina);
@@ -519,19 +520,23 @@ checkboxes.forEach(cb => {
 
 function buscarEjercicios() {
     const query = document.getElementById('exerciseSearch').value.toLowerCase();
-    const checkboxes = document.querySelectorAll('.exercise-checkbox');
+    const items = document.querySelectorAll('#exerciseSelection .form-check');
 
-    checkboxes.forEach(checkbox => {
-        const label = document.querySelector(`label[for="${checkbox.id}"]`).textContent.toLowerCase();
-        const item = checkbox.closest('.form-check');
+    items.forEach(item => {
+        const checkbox = item.querySelector('.exercise-checkbox');
+        const label = item.querySelector('label');
 
-        if (label.includes(query)) {
-            item.style.display = 'block';
-        } else {
-            item.style.display = 'none';
-        }
+        if (!checkbox || !label) return;
+
+        const nombre = (checkbox.dataset.name || "").toLowerCase();
+        const textoLabel = label.textContent.toLowerCase();
+
+        const coincide = nombre.includes(query) || textoLabel.includes(query);
+
+        item.style.display = coincide ? 'block' : 'none';
     });
 }
+
 
 function eliminarRutina(idRutina) {
     if (confirm('¿Estás seguro de que deseas eliminar esta rutina? Esta acción no se puede deshacer.')) {
