@@ -160,13 +160,7 @@
                         <i class="fas fa-user-tie"></i> Entrenadores
                     </button>
                 </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="acciones-tab" data-bs-toggle="tab" 
-                            data-bs-target="#acciones" type="button" role="tab" 
-                            aria-controls="acciones" aria-selected="false">
-                        <i class="fas fa-cog"></i> Acciones
-                    </button>
-                </li>
+
             </ul>
 
             <div class="tab-content" id="adminTabsContent">
@@ -264,25 +258,7 @@
                     </div>
                 </div>
 
-                <div class="tab-pane fade" id="acciones" role="tabpanel" aria-labelledby="acciones-tab">
-                    <div class="row">
-                        <div class="col-md-4 mb-3">
-                            <a href="AgregarEjercicio.jsp" class="btn btn-success w-100">
-                                <i class="fas fa-plus"></i> Agregar ejercicio
-                            </a>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <a href="CrearRutina.jsp" class="btn btn-primary w-100">
-                                <i class="fas fa-plus"></i> Crear nueva rutina
-                            </a>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <a href="#" class="btn btn-secondary w-100">
-                                <i class="fas fa-chart-line"></i> Ver estadísticas
-                            </a>
-                        </div>
-                    </div>
-                </div>
+
             </div>
         </div>
 
