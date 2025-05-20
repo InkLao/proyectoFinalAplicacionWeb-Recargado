@@ -26,6 +26,10 @@ public class Ejercicio {
     private int tiempoDescanso;
 
     
+    /**
+     * Test
+     */
+    
     public Ejercicio() {
     }
 
