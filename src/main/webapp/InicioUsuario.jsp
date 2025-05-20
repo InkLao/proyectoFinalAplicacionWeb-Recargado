@@ -4,6 +4,8 @@
     Author     : Arturo ITSON
 --%>
 
+<%@page import="java.util.HashSet"%>
+<%@page import="java.util.Set"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="colecciones.Rutina"%>
 <%@page import="daos.RutinaDAO"%>
@@ -19,11 +21,51 @@
 <%
     HttpSession sesion = request.getSession(false);
     Usuario usuario = null;
+    
+    IEjercicioDAO ejercicioDAO = new EjercicioDAO();
+    IRutinaDAO rutinaDAO = new RutinaDAO();
+    
+    
+    String mensaje = request.getParameter("mensaje");
+    String error = request.getParameter("error");
+    
+    
     if (sesion != null) {
         usuario = (Usuario) sesion.getAttribute("usuario");
     }
 
     String accion = request.getParameter("accion");
+    
+    
+    if ("guardarRutina".equalsIgnoreCase("accion")){
+        String nombreRutina = request.getParameter("routineName");
+        String nombreUsuario = request.getParameter("nombreUsuario");
+        String selected = request.getParameter("selectedExercises");
+        
+
+        Set<Ejercicio> ejercicios = new HashSet<>();
+
+        if (selected != null && !selected.isEmpty()) {
+            String[] ids = selected.split(",");
+
+            for (String id : ids) {
+                Ejercicio ejercicio = ejercicioDAO.buscarEjercicio(id.trim());
+                if (ejercicio != null) {
+                    ejercicios.add(ejercicio);
+                }
+            }
+        }
+        
+        Rutina rutina = new Rutina();
+        rutina.setNombreRutina(nombreRutina);
+        rutina.setNombreUsuario(nombreUsuario);
+        rutina.setAsignadaPorEntrenador(false);
+        rutina.setEjercicios(ejercicios);
+
+        rutinaDAO.agregarRutina(rutina);
+        mensaje = "rutina agregada exitosamente";
+    
+    }
     
     
 
@@ -36,8 +78,7 @@
         return;
     }
 
-    String mensaje = request.getParameter("mensaje");
-    String error = request.getParameter("error");
+    
 %>
 
 <!DOCTYPE html>
@@ -244,7 +285,6 @@
             accion = request.getParameter("accion");
             String filtroNombre = request.getParameter("filtroNombre");
 
-            IEjercicioDAO ejercicioDAO = new EjercicioDAO();
             List<Ejercicio> ejercicios = new ArrayList<>();
 
             if ("buscarEjercicios".equals(accion)) {
@@ -299,7 +339,6 @@
             <h3 class="mb-3 mt-5"><i class="fas fa-list-check"></i> Mis Rutinas</h3>
 
             <%
-                IRutinaDAO rutinaDAO = new RutinaDAO();
                 List<Rutina> rutinas = rutinaDAO.obtenerTodosLasRutinasPorCliente(usuario.getUsuario());
             %>
 
@@ -366,7 +405,7 @@
         <!-- Cuerpo scrollable -->
         <div class="modal-body-custom">
             <form id="routineForm" action="CrearRutinaServlet" method="POST">
-                <input type="hidden" name="nombreUsuario" value="<%= usuario.getUsuario() %>">
+                <input type="hidden" name="accion" value="guardarRutina">
 
                 <div class="mb-3">
                     <label for="routineName" class="form-label">Nombre de la Rutina</label>
