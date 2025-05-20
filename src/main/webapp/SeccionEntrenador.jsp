@@ -4,6 +4,9 @@
     Author     : eduar
 --%>
 
+<%@page import="daos.UsuarioDAO"%>
+<%@page import="java.util.HashSet"%>
+<%@page import="java.util.Set"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="java.util.List"%>
 <%@page import="colecciones.Rutina"%>
@@ -20,11 +23,66 @@
     
     HttpSession sesion = request.getSession(false);
     Entrenador entrenador = null;
+    
+    IEjercicioDAO ejercicioDAO = new EjercicioDAO();
+    IRutinaDAO rutinaDAO = new RutinaDAO();
+    UsuarioDAO usauarioDAO = new UsuarioDAO();
+    
+    String mensaje = request.getParameter("mensaje");
+    String error = request.getParameter("error");
+    
+    
     if (sesion != null) {
         entrenador = (Entrenador) sesion.getAttribute("entrenador");
     }
 
     String accion = request.getParameter("accion");
+
+    
+    
+    if ("guardarRutina".equalsIgnoreCase(accion)){
+        String nombreRutina = request.getParameter("routineName");
+        String nombreUsuario = request.getParameter("userName");
+        
+        if(usauarioDAO.existeUsuario(nombreUsuario)){
+        
+            String selected = request.getParameter("selectedExercises");
+        
+
+            Set<Ejercicio> ejercicios = new HashSet<>();
+
+            if (selected != null && !selected.isEmpty()) {
+                String[] ids = selected.split(",");
+
+                for (String id : ids) {
+                    Ejercicio ejercicio = ejercicioDAO.buscarEjercicio(id.trim());
+                    if (ejercicio != null) {
+                        ejercicios.add(ejercicio);
+                    }
+                }
+            }
+
+            Rutina rutina = new Rutina();
+            rutina.setNombreRutina(nombreRutina);
+            rutina.setNombreUsuario(nombreUsuario);
+            rutina.setAsignadaPorEntrenador(false);
+            rutina.setNombreEntrenador(entrenador.getNombre());
+            rutina.setEjercicios(ejercicios);
+
+            rutinaDAO.agregarRutina(rutina);
+            mensaje = "rutina agregada exitosamente";
+    
+        }
+        else{
+        mensaje = "el usuario no existe";
+        
+        }
+    
+    }
+    
+
+
+
 
     if ("cerrarSesion".equalsIgnoreCase(accion)) {
         // Si el usuario está logueado, invalida la sesión
@@ -35,14 +93,31 @@
         return;
     }
     
-   
-
-    IEjercicioDAO ejercicioDAO = new EjercicioDAO();
-    IRutinaDAO rutinaDAO = new RutinaDAO();
     
-    String mensaje = request.getParameter("mensaje");
-    String error = request.getParameter("error");
+    
+    
+    
 %>
+
+
+
+            <%
+            accion = request.getParameter("accion");
+            String filtroNombre = request.getParameter("filtroNombre");
+
+            List<Ejercicio> ejercicios = new ArrayList<>();
+
+            if ("buscarEjercicios".equals(accion)) {
+                if (filtroNombre != null && !filtroNombre.trim().isEmpty()) {
+                    ejercicios = ejercicioDAO.buscarPorNombre(filtroNombre.trim());
+                } else {
+                    ejercicios = ejercicioDAO.obtenerTodosLosEjercicios();
+                }
+            } else {
+                // Opción: puedes decidir si mostrar todos por defecto o nada
+                ejercicios = ejercicioDAO.obtenerTodosLosEjercicios(); // o simplemente dejar la lista vacía
+            }
+        %>
 
 <!DOCTYPE html>
 <html lang="es">
@@ -109,6 +184,105 @@
                 border-radius: 0 0 10px 10px;
                 background-color: white;
             }
+            
+            
+                        /* Estilos para el modal de rutinas */
+            .routine-modal {
+    display: none;
+    position: fixed;
+    z-index: 1050;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.routine-modal-content {
+    background-color: #fff;
+    margin: 4% auto;
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.modal-header-custom {
+    padding: 16px;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-body-custom {
+    padding: 16px;
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+.modal-footer-custom {
+    padding: 16px;
+    background-color: #f8f9fa;
+    border-top: 1px solid #ddd;
+}
+
+
+            @keyframes modalFadeIn {
+                from {opacity: 0; transform: translateY(-20px);}
+                to {opacity: 1; transform: translateY(0);}
+            }
+
+            .exercise-selection {
+                max-height: 300px;
+                overflow-y: auto;
+                margin: 15px 0;
+                border: 1px solid #ddd;
+                padding: 10px;
+                border-radius: 5px;
+                background-color: #f9f9f9;
+            }
+
+            .selected-exercises {
+                margin: 15px 0;
+                padding: 15px;
+                background-color: #f8f9fa;
+                border-radius: 5px;
+                border: 1px dashed #ccc;
+            }
+
+            .selected-exercise-item {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 8px 0;
+                border-bottom: 1px solid #eee;
+            }
+
+            .routine-card {
+                transition: all 0.3s;
+                margin-bottom: 20px;
+                border: none;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            }
+
+            .routine-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+            }
+
+            .routine-card .card-header {
+                background: linear-gradient(to right, #4a90e2, #6a5acd);
+                color: white;
+                font-weight: 600;
+            }
+            
+            
         </style>
     </head>
     <body>
@@ -137,58 +311,57 @@
             <% } %>
 
             <ul class="nav nav-tabs" id="entrenadorTabs" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="ejercicios-tab" data-bs-toggle="tab" 
-                            data-bs-target="#ejercicios" type="button" role="tab" 
-                            aria-controls="ejercicios" aria-selected="true">
-                        <i class="fas fa-dumbbell"></i> Ejercicios
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="rutinas-tab" data-bs-toggle="tab" 
-                            data-bs-target="#rutinas" type="button" role="tab" 
-                            aria-controls="rutinas" aria-selected="false">
-                        <i class="fas fa-list-check"></i> Rutinas
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="nuevo-tab" data-bs-toggle="tab" 
-                            data-bs-target="#nuevo" type="button" role="tab" 
-                            aria-controls="nuevo" aria-selected="false">
-                        <i class="fas fa-plus-circle"></i> Agregar Nuevo
-                    </button>
-                </li>
-            </ul>
-            
-            <%
-            accion = request.getParameter("accion");
-            String filtroNombre = request.getParameter("filtroNombre");
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="ejercicios-tab" data-bs-toggle="tab" 
+                data-bs-target="#ejercicios" type="button" role="tab" 
+                aria-controls="ejercicios" aria-selected="true">
+            <i class="fas fa-dumbbell"></i> Ejercicios
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="rutinas-tab" data-bs-toggle="tab" 
+                data-bs-target="#rutinas" type="button" role="tab" 
+                aria-controls="rutinas" aria-selected="false">
+            <i class="fas fa-list-check"></i> Rutinas
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="nuevo-tab" data-bs-toggle="tab" 
+                data-bs-target="#nuevo" type="button" role="tab" 
+                aria-controls="nuevo" aria-selected="false">
+            <i class="fas fa-plus-circle"></i> Agregar Nuevo
+        </button>
+    </li>
+</ul>
 
-            List<Ejercicio> ejercicios = new ArrayList<>();
-
-            if ("buscarEjercicios".equals(accion)) {
-                if (filtroNombre != null && !filtroNombre.trim().isEmpty()) {
-                    ejercicios = ejercicioDAO.buscarPorNombre(filtroNombre.trim());
-                } else {
-                    ejercicios = ejercicioDAO.obtenerTodosLosEjercicios();
-                }
-            } else {
-                // Opción: puedes decidir si mostrar todos por defecto o nada
-                ejercicios = ejercicioDAO.obtenerTodosLosEjercicios(); // o simplemente dejar la lista vacía
-            }
-        %>
+<div class="tab-content mt-3">
+    <!-- Ejercicios -->
+    <div class="tab-pane fade show active" id="ejercicios" role="tabpanel" aria-labelledby="ejercicios-tab">
+        <!-- Contenido para Ejercicios -->
         
-        <form method="get" action="SeccionEntrenador.jsp" class="d-flex mb-4" role="search">
+        
+                                    <div class="card mb-4">
+
+                                
+                                    <form action="AgregarEjercicio.jsp" method="get">
+                                        <button type="submit" class="btn btn-primary w-100">
+                                            <i class="fas fa-plus me-2"></i>Crear Ejercicio
+                                        </button>
+                                    </form>
+                                
+                            </div>
+        
+        
+                <form method="get" action="SeccionEntrenador.jsp" class="d-flex mb-4" role="search">
                 <input type="text" name="filtroNombre" class="form-control me-2" placeholder="Buscar ejercicio por nombre"
                     value="<%= request.getParameter("filtroNombre") != null ? request.getParameter("filtroNombre") : "" %>">
                 <button class="btn btn-outline-primary" type="submit" >Buscar</button>
                 <input type="hidden" name="accion" value="buscarEjercicios">
-            </form
-            
-
-            <div class="tab-content" id="entrenadorTabsContent">
-                <div class="tab-pane fade show active" id="ejercicios" role="tabpanel" aria-labelledby="ejercicios-tab">
+                </form>
+                        <div class="tab-pane fade show active" id="ejercicios" role="tabpanel" aria-labelledby="ejercicios-tab">
                     
+                            
+                            
                 
                     
                     <div class="row">
@@ -221,44 +394,54 @@
                         <% } %>
                     </div>
                 </div>
+        
+        
+        
+        
+        
+    </div>
 
-                <div class="tab-pane fade" id="rutinas" role="tabpanel" aria-labelledby="rutinas-tab">
-                    <div class="row">
-                        <% for (Rutina rutina : rutinaDAO.obtenerTodosLasRutinas()) { %>
-                        <div class="col-md-6 mb-4">
-                            <div class="routine-card h-100">
-                                <div class="card-header d-flex justify-content-between align-items-center">
-                                    <h5 class="mb-0"><%= rutina.getNombreRutina() %></h5>
-                                    <span class="badge <%= rutina.isAsignadaPorEntrenador() ? "bg-success" : "bg-primary" %>">
-                                        <%= rutina.isAsignadaPorEntrenador() ? "Entrenador" : "Personalizada" %>
-                                    </span>
-                                </div>
-                                <div class="card-body">
-                                    <h6 class="card-subtitle mb-3"><i class="fas fa-dumbbell me-2"></i>Ejercicios:</h6>
-                                    <ul class="list-group list-group-flush mb-3">
-                                        <% for (Ejercicio ejercicio : rutina.getEjercicios()) { %>
-                                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <strong><%= ejercicio.getNombre() %></strong><br>
-                                                <small class="text-muted">
-                                                    <%= ejercicio.getSeries() %>x<%= ejercicio.getRepeticiones() %> rep • 
-                                                    <%= ejercicio.getTiempoDescanso() %>s descanso
-                                                </small>
-                                            </div>
-                                            <div>
-                                                <% for (GrupoMuscular grupo : ejercicio.getGruposMusculares()) { %>
-                                                <span class="badge bg-primary me-1"><%= grupo %></span>
-                                                <% } %>
-                                            </div>
-                                        </li>
-                                        <% } %>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        <% } %>
-                    </div>
-                </div>
+    <!-- Rutinas -->
+    <div class="tab-pane fade" id="rutinas" role="tabpanel" aria-labelledby="rutinas-tab">
+        <!-- Contenido para Rutinas -->
+        
+        <button class="btn btn-primary me-2" onclick="openRoutineModal()">
+                        <i class="fas fa-plus me-1"></i> Nueva Rutina
+        </button>
+        
+        
+        
+        
+    </div>
+
+    <!-- Agregar Nuevo -->
+    <div class="tab-pane fade" id="nuevo" role="tabpanel" aria-labelledby="nuevo-tab">
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <a href="AgregarEjercicio.jsp" class="btn btn-success w-100">
+                    <i class="fas fa-plus"></i> Agregar ejercicio
+                </a>
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <form action="SeccionAdmin.jsp" method="post">
+                    <input type="hidden" name="accion" value="insertarEjercicios">
+                    <button type="submit" class="btn btn-info w-100">
+                        <i class="fas fa-dumbbell"></i> Insertar Ejercicios
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+            
+
+        
+            
+
+            <div class="tab-content" id="entrenadorTabsContent">
+
 
                 <div class="tab-pane fade" id="nuevo" role="tabpanel" aria-labelledby="nuevo-tab">
                     <div class="row">
@@ -276,26 +459,220 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="card mb-4">
-                                <div class="card-header">
-                                    <i class="fas fa-list-check me-2"></i>Crear Nueva Rutina
-                                </div>
-                                <div class="card-body">
-                                    <form action="CrearRutina.jsp" method="get">
-                                        <input type="hidden" name="esEntrenador" value="true">
-                                        <button type="submit" class="btn btn-success w-100">
-                                            <i class="fas fa-plus me-2"></i>Crear Rutina
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
+
                     </div>
                 </div>
             </div>
-        </div>
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     </body>
+
+
+    <!-- Modal para crear rutinas -->
+    
+
+    
+<div id="routineModal" class="routine-modal">
+    <div class="routine-modal-content d-flex flex-column">
+        
+        <!-- Encabezado -->
+        <div class="modal-header-custom">
+            <h3 class="mb-0"><i class="fas fa-plus-circle me-2"></i>Crear Nueva Rutina</h3>
+            <span class="close" onclick="closeRoutineModal()">&times;</span>
+        </div>
+
+        <!-- Cuerpo scrollable -->
+        <div class="modal-body-custom">
+            <form id="routineForm" action="CrearRutinaServlet" method="POST">
+                <input type="hidden" name="accion" value="guardarRutina">
+
+                <div class="mb-3">
+                    <label for="routineName" class="form-label">Nombre de la Rutina</label>
+                    <input type="text" class="form-control" id="routineName" name="routineName" required
+                           placeholder="Ej: Rutina de pecho y tríceps">
+                </div>
+                
+                
+                 <div class="mb-3">
+                    <label for="userName" class="form-label">Nombre de usuario del cliente</label>
+                    <input type="text" class="form-control" id="userName" name="userName" required
+                           placeholder="">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Seleccionar Ejercicios</label>
+                    <div class="input-group mb-2">
+                        <input type="text" id="exerciseSearch" class="form-control" placeholder="Buscar ejercicios...">
+                        <button class="btn btn-outline-secondary" type="button" onclick="buscarEjercicios()">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                    <div class="exercise-selection" id="exerciseSelection">
+                        <% for (Ejercicio ejercicio : ejercicios) { %>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input exercise-checkbox" type="checkbox"
+                                   value="<%= ejercicio.getId().toString() %>"
+                                   id="ex-<%= ejercicio.getId().toString() %>"
+                                   data-name="<%= ejercicio.getNombre() %>"
+                                   onchange="updateSelectedExercises()">
+                            <label class="form-check-label" for="ex-<%= ejercicio.getId().toString() %>">
+                                <strong><%= ejercicio.getNombre() %></strong> -
+                                <% for (GrupoMuscular grupo : ejercicio.getGruposMusculares()) { %>
+                                <span class="badge bg-primary me-1"><%= grupo %></span>
+                                <% } %>
+                            </label>
+                        </div>
+                        <% } %>
+                    </div>
+                </div>
+
+                <div class="selected-exercises" id="selectedExercises">
+                    <p class="text-muted mb-0"><i class="fas fa-info-circle me-1"></i>No hay ejercicios seleccionados</p>
+                </div>
+
+                <input type="hidden" id="selectedExercisesInput" name="selectedExercises">
+            </form>
+        </div>
+
+        <!-- Botones fijos -->
+        <div class="modal-footer-custom d-grid gap-2">
+            <button type="submit" class="btn btn-primary" form="routineForm">
+                <i class="fas fa-save me-1"></i> Guardar Rutina
+            </button>
+            <button type="button" class="btn btn-outline-secondary" onclick="closeRoutineModal()">
+                Cancelar
+            </button>
+        </div>
+
+    </div>
+</div>
+    
+    
+    
+    
+    
+
+
+
+
+
+<script>
+    
+function openRoutineModal() {
+    document.getElementById('routineModal').style.display = 'block';
+    document.getElementById('routineName').focus();
+}
+
+function closeRoutineModal() {
+    document.getElementById('routineModal').style.display = 'none';
+}
+
+function updateSelectedExercises() {
+    const selectedContainer = document.getElementById('selectedExercises');
+    const checkboxes = document.querySelectorAll('.exercise-checkbox:checked');
+    const selectedIds = [];
+    let html = "";
+
+    if (checkboxes.length === 0) {
+        selectedContainer.innerHTML = `<p class="text-muted mb-0"><i class="fas fa-info-circle me-1"></i>No hay ejercicios seleccionados</p>`;
+        document.getElementById('selectedExercisesInput').value = "";
+        return;
+    }
+
+    html += `<h6>Ejercicios seleccionados:</h6>`;
+
+checkboxes.forEach(cb => {
+    const nombreEjercicio = cb.dataset.name || "Ejercicio";
+    const checkboxId = cb.id;
+
+    console.log("Ejercicio:", nombreEjercicio, "Checkbox ID:", checkboxId);
+
+
+    html += 
+  '<div style="background: #fff; border: 1px solid #ddd; border-radius: 6px; padding: 8px 12px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center;">' +
+    '<div style="display: flex; align-items: center; color: #333; font-weight: 500;">' +
+      '<i class="fas fa-dumbbell text-primary me-2" style="margin-right: 8px;"></i>' +
+      nombreEjercicio +
+    '</div>' +
+    '<button type="button" class="btn btn-sm btn-outline-danger" ' +
+            'onclick="document.getElementById(\'' + checkboxId + '\').checked = false; updateSelectedExercises();">' +
+        '<i class="fas fa-times"></i>' +
+    '</button>' +
+  '</div>';
+
+    selectedIds.push(cb.value);
+});
+
+
+
+    console.log('HTML generado:', html);
+
+    selectedContainer.innerHTML = html;
+    document.getElementById('selectedExercisesInput').value = selectedIds.join(',');
+}
+
+
+function buscarEjercicios() {
+    const query = document.getElementById('exerciseSearch').value.toLowerCase();
+    const items = document.querySelectorAll('#exerciseSelection .form-check');
+
+    items.forEach(item => {
+        const checkbox = item.querySelector('.exercise-checkbox');
+        const label = item.querySelector('label');
+
+        if (!checkbox || !label) return;
+
+        const nombre = (checkbox.dataset.name || "").toLowerCase();
+        const textoLabel = label.textContent.toLowerCase();
+
+        const coincide = nombre.includes(query) || textoLabel.includes(query);
+
+        item.style.display = coincide ? 'block' : 'none';
+    });
+}
+
+
+function eliminarRutina(idRutina) {
+    if (confirm('¿Estás seguro de que deseas eliminar esta rutina? Esta acción no se puede deshacer.')) {
+        fetch('EliminarRutinaServlet?id=' + idRutina, {
+            method: 'POST'
+        }).then(response => {
+            if (response.ok) {
+                location.reload();
+            } else {
+                alert('Error al eliminar la rutina');
+            }
+        }).catch(error => {
+            console.error('Error:', error);
+            alert('Error al eliminar la rutina');
+        });
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.exercise-checkbox').forEach(cb => {
+        cb.addEventListener('change', updateSelectedExercises);
+    });
+
+    document.getElementById('routineForm').addEventListener('submit', function(e) {
+        const checkboxes = document.querySelectorAll('.exercise-checkbox:checked');
+        if (checkboxes.length === 0) {
+            e.preventDefault();
+            alert('Por favor selecciona al menos un ejercicio');
+            return false;
+        }
+        return true;
+    });
+
+    window.onclick = function(event) {
+        const modal = document.getElementById('routineModal');
+        if (event.target === modal) {
+            closeRoutineModal();
+        }
+    }
+});
+</script>
+
+
+
 </html>

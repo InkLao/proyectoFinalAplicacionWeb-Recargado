@@ -22,11 +22,13 @@ import org.bson.codecs.pojo.PojoCodecProvider;
 public class ConexionBD {
     
         public MongoDatabase conexion() {
-        // Configura el proveedor de códecs para trabajar con objetos Java y MongoDB
-        CodecRegistry pojoCodecRegistry = fromProviders(PojoCodecProvider.builder().automatic(true).build());
-
-        // Combina el proveedor de códecs POJO con el registro de códecs predeterminado de MongoDB
-        CodecRegistry codecRegistry = fromRegistries(MongoClientSettings.getDefaultCodecRegistry(), pojoCodecRegistry);
+            
+            
+            
+        CodecRegistry codecRegistry = fromRegistries(
+            MongoClientSettings.getDefaultCodecRegistry(),
+            fromProviders(PojoCodecProvider.builder().automatic(true).build())
+        );
 
         // Configura la cadena de conexión a la base de datos MongoDB local
         ConnectionString cadenaConexion = new ConnectionString("mongodb://localhost/27017");

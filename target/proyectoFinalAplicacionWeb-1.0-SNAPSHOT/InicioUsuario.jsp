@@ -60,9 +60,11 @@
         rutina.setNombreRutina(nombreRutina);
         rutina.setNombreUsuario(nombreUsuario);
         rutina.setAsignadaPorEntrenador(false);
-        rutina.setNombreEntrenador("none");
+        rutina.setNombreEntrenador("Sin Entrenador");
         rutina.setEjercicios(ejercicios);
-
+        
+        
+        System.out.println("Valor de asignadaPorEntrenador: " + rutina.isAsignadaPorEntrenador());
         rutinaDAO.agregarRutina(rutina);
         mensaje = "rutina agregada exitosamente";
     
@@ -356,7 +358,7 @@
                             <div class="d-flex justify-content-between align-items-center">
                                 <h5 class="card-title mb-0"><%= rutina.getNombreRutina()%></h5>
                                 <span class="badge <%= rutina.isAsignadaPorEntrenador() ? "bg-success" : "bg-primary"%>">
-                                    <%= rutina.isAsignadaPorEntrenador() ? "Entrenador" : "Personalizada"%>
+                                    <%= rutina.isAsignadaPorEntrenador() ? "Entrenador: " + rutina.getNombreEntrenador()  : "Personalizada"%>
                                 </span>
                             </div>
                         </div>
